@@ -24,6 +24,8 @@ TODO (E10)
 
 ### Backend
 
+Warstwy `app/Core` i `app/Shared` to mój szkielet, którego używam w innych projektach. Przeniosłem go bez segmentu `V1` w namespace (wersja API jest tylko w URL: `/api/v1`) i usunąłem z niego to, czego API nie potrzebuje (Sanctum, Telescope, Vite, widoki, e-maile). Dodałem `QueryBus` jako odpowiednik `CommandBus` dla odczytów. Część elementów szkieletu (np. obsługa relacji w zasobach API czy `dispatchManyWithTransaction()`) nie jest w tym zadaniu wykorzystywana. Zostawiłem je świadomie, żeby zachować jeden standard między projektami.
+
 TODO (E10)
 
 ### Frontend
