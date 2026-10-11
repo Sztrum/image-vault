@@ -59,7 +59,13 @@ class ExceptionHandler extends Handler
         }
 
         if ($e instanceof HttpException) {
-            return $this->respond(['status' => $e->getStatusCode(), 'message' => $e->getMessage()], $e, $isDebug);
+            $status = $e->getStatusCode();
+            $hideMessage = !$isDebug && $status >= Response::HTTP_INTERNAL_SERVER_ERROR;
+
+            return $this->respond([
+                'status' => $status,
+                'message' => $hideMessage ? __('core::domain.server_error') : $e->getMessage(),
+            ], $e, $isDebug);
         }
 
         if ($e instanceof AuthenticationException) {
@@ -71,18 +77,10 @@ class ExceptionHandler extends Handler
 
     private function buildDefaultResponse(Throwable $e, bool $isDebug): JsonResponse
     {
-        $status = $this->resolveHttpStatusCode($e);
-
-        $responseData = [
-            'status' => $status,
-            'message' => $e->getMessage(),
-        ];
-
-        if ($isDebug) {
-            $responseData['data'] = $this->getDebugData($e);
-        }
-
-        return new JsonResponse($responseData, $status, [], JSON_UNESCAPED_UNICODE);
+        return $this->respond([
+            'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+            'message' => $isDebug ? $e->getMessage() : __('core::domain.server_error'),
+        ], $e, $isDebug);
     }
 
     /**
@@ -112,16 +110,5 @@ class ExceptionHandler extends Handler
             : Response::HTTP_INTERNAL_SERVER_ERROR;
 
         return new JsonResponse($responseData, $status, [], JSON_UNESCAPED_UNICODE);
-    }
-
-    private function resolveHttpStatusCode(Throwable $e): int
-    {
-        $code = $e->getCode();
-
-        if (is_int($code) && $code >= 100 && $code <= 599) {
-            return $code;
-        }
-
-        return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 }

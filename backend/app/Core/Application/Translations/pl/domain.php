@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'model_not_found' => 'Nie znaleziono',
+    'server_error' => 'Wystąpił błąd serwera. Spróbuj ponownie później.',
     'unauthenticated' => 'Nieautoryzowany',
     'module_name_registered_with_different_path' => 'Nazwa modułu ":moduleName" jest już zarejestrowana z inną ścieżką providera. Moduł 1: :firstPath. Moduł 2: :secondPath.',
     'module_provider_path_not_resolved' => 'Nie można ustalić ścieżki providera modułu.',
