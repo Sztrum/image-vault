@@ -1,14 +1,3 @@
-# Agent instruction files (local only, never committed)
-CLAUDE.md
-WORKFLOW.md
-AGENTS.md
-**/AGENTS.md
-**/CLAUDE.md
-.claude/
-.codex/
-docs/PLAN.md
-docs/NOTES.md
-
 # OS / editors
 .DS_Store
 Thumbs.db
