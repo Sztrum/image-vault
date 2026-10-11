@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Core\Application\Providers;
 
+use App\Core\Application\Providers\Resolvers\ModuleProviderResolver;
+use App\Core\Domain\Exceptions\ModuleProviderNotResolvedException;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
+use Throwable;
 
 abstract class ConfigServiceProvider extends ServiceProvider
 {
@@ -45,25 +47,11 @@ abstract class ConfigServiceProvider extends ServiceProvider
         }
     }
 
+    /**
+     * @throws ModuleProviderNotResolvedException|Throwable
+     */
     public function getModuleProvider(): ModuleServiceProvider
     {
-        $routeProviderReflection = new ReflectionClass($this);
-
-        $provider = Collection::make($this->app->getProviders(ModuleServiceProvider::class))
-            ->filter(function ($moduleServiceProvider) use ($routeProviderReflection): bool {
-                if (!$moduleServiceProvider instanceof ModuleServiceProvider) {
-                    return false;
-                }
-
-                $reflection = new ReflectionClass($moduleServiceProvider);
-
-                return str_starts_with($routeProviderReflection->getNamespaceName(), $reflection->getNamespaceName());
-            })->first();
-
-        if (!$provider instanceof ModuleServiceProvider) {
-            throw new \RuntimeException(__('core::domain.config_service_provider_module_provider_not_resolved'));
-        }
-
-        return $provider;
+        return $this->app->make(ModuleProviderResolver::class)->resolveFor($this);
     }
 }
