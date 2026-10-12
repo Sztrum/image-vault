@@ -9,8 +9,6 @@ use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 use App\Modules\MediaLibrary\Image\Domain\Models\Image;
 use Illuminate\Database\Seeder;
 use Imagick;
-use ImagickDraw;
-use ImagickPixel;
 
 class ImageSeeder extends Seeder
 {
@@ -48,13 +46,7 @@ class ImageSeeder extends Seeder
     private function makeImage(int $width, int $height, int $number): string
     {
         $image = new Imagick;
-        $image->newImage($width, $height, new ImagickPixel(fake()->hexColor()));
-
-        $label = new ImagickDraw;
-        $label->setFillColor(new ImagickPixel('#ffffff'));
-        $label->setFontSize(min($width, $height) / 4);
-        $label->setGravity(Imagick::GRAVITY_CENTER);
-        $image->annotateImage($label, 0, 0, 0, (string) $number);
+        $image->newPseudoImage($width, $height, sprintf('gradient:%s-%s', fake()->hexColor(), fake()->hexColor()));
         $image->setImageFormat('jpeg');
 
         $filePath = sys_get_temp_dir() . "/image-seed-{$number}.jpg";
