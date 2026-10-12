@@ -1,4 +1,5 @@
 export { Button } from './Button'
+export { ButtonLink } from './ButtonLink'
 export { ConfirmDialog } from './ConfirmDialog'
 export { ErrorMessage } from './ErrorMessage'
 export { Field } from './Field'
