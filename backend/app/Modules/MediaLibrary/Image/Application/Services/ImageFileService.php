@@ -6,6 +6,7 @@ namespace App\Modules\MediaLibrary\Image\Application\Services;
 
 use App\Modules\MediaLibrary\Image\Domain\DTO\NewImageDTO;
 use App\Modules\MediaLibrary\Image\Domain\DTO\StoredImageFilesDTO;
+use App\Modules\MediaLibrary\Image\Domain\DTO\UploadImageDTO;
 use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 use App\Modules\MediaLibrary\Image\Domain\Exceptions\EmptyImageException;
 use App\Modules\MediaLibrary\Image\Domain\Exceptions\ImageTooLargeException;
@@ -41,25 +42,24 @@ readonly class ImageFileService
      * @throws InvalidUploaderNameException
      * @throws InvalidEmailException
      */
-    public function toNewImageDTO(
-        string $filePath,
-        string $originalName,
-        string $uploaderName,
-        string $uploaderEmail,
-    ): NewImageDTO {
-        $info = @getimagesize($filePath);
-        $size = filesize($filePath);
+    public function toNewImageDTO(UploadImageDTO $uploadImageDTO): NewImageDTO
+    {
+        $info = @getimagesize($uploadImageDTO->file_path);
+        $size = filesize($uploadImageDTO->file_path);
         throw_if($info === false || $size === false, UnsupportedImageFormatException::class, null, [
             'mime' => 'unknown',
             'formats' => implode(', ', ImageFormatEnum::values()),
         ]);
 
         return new NewImageDTO(
-            original_name: new ImageName($originalName),
+            original_name: new ImageName($uploadImageDTO->original_name),
             format: ImageFormatEnum::fromMimeType($info['mime']),
             size: new FileSize($size),
             dimensions: new ImageDimensions(width: $info[0], height: $info[1]),
-            uploader: new Uploader(name: $uploaderName, email: new Email($uploaderEmail)),
+            uploader: new Uploader(
+                name: $uploadImageDTO->uploader_name,
+                email: new Email($uploadImageDTO->uploader_email),
+            ),
         );
     }
 

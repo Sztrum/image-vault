@@ -6,6 +6,7 @@ namespace App\Modules\MediaLibrary\Image\Application\Commands;
 
 use App\Core\Application\Command\CommandTransactionalInterface;
 use App\Modules\MediaLibrary\Image\Application\Commands\Handlers\UploadImageCommandHandler;
+use App\Modules\MediaLibrary\Image\Domain\DTO\UploadImageDTO;
 
 /**
  * @see UploadImageCommandHandler
@@ -13,9 +14,6 @@ use App\Modules\MediaLibrary\Image\Application\Commands\Handlers\UploadImageComm
 readonly class UploadImageCommand implements CommandTransactionalInterface
 {
     public function __construct(
-        public string $filePath,
-        public string $originalName,
-        public string $uploaderName,
-        public string $uploaderEmail,
+        public UploadImageDTO $uploadImageDTO,
     ) {}
 }

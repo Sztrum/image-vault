@@ -6,6 +6,7 @@ namespace App\Modules\MediaLibrary\Image\UI\Http\Controllers;
 
 use App\Core\UI\Http\Controllers\ApiController;
 use App\Modules\MediaLibrary\Image\Application\Commands\UploadImageCommand;
+use App\Modules\MediaLibrary\Image\Domain\DTO\UploadImageDTO;
 use App\Modules\MediaLibrary\Image\UI\Http\Requests\ImageStoreRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
@@ -19,10 +20,12 @@ class ImageController extends ApiController
         $file = $request->file('file');
 
         $this->commandBus->dispatch(new UploadImageCommand(
-            filePath: $file->getRealPath(),
-            originalName: $file->getClientOriginalName(),
-            uploaderName: $request->string('uploader_name')->toString(),
-            uploaderEmail: $request->string('uploader_email')->toString(),
+            uploadImageDTO: new UploadImageDTO(
+                file_path: $file->getRealPath(),
+                original_name: $file->getClientOriginalName(),
+                uploader_name: $request->string('uploader_name')->toString(),
+                uploader_email: $request->string('uploader_email')->toString(),
+            ),
         ));
 
         return $this->responseMessage(
