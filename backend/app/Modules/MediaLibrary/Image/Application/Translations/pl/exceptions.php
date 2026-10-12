@@ -9,4 +9,5 @@ return [
     'unsupported_format' => 'Nieobsługiwany format pliku (:mime). Dozwolone: :formats.',
     'invalid_uploader_name' => 'Imię jest wymagane i może mieć najwyżej :max znaków.',
     'invalid_name' => 'Nazwa pliku jest wymagana i może mieć najwyżej :max znaków.',
+    'not_found' => 'Nie znaleziono obrazu.',
 ];

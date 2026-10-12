@@ -17,5 +17,9 @@ return [
         'uploader_email.string' => 'Podaj poprawny adres e-mail.',
         'uploader_email.email' => 'Podaj poprawny adres e-mail.',
         'uploader_email.max' => 'Adres e-mail może mieć najwyżej 255 znaków.',
+        'cursor.string' => 'Niepoprawny kursor.',
+        'per_page.integer' => 'Liczba obrazów na stronę musi być liczbą od 1 do 50.',
+        'per_page.min' => 'Liczba obrazów na stronę musi być liczbą od 1 do 50.',
+        'per_page.max' => 'Liczba obrazów na stronę musi być liczbą od 1 do 50.',
     ],
 ];
