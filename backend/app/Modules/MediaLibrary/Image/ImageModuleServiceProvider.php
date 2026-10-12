@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\MediaLibrary\Image;
 
 use App\Core\Application\Providers\ModuleServiceProvider;
+use App\Modules\MediaLibrary\Image\Application\Providers\ImageConfigServiceProvider;
+use App\Modules\MediaLibrary\Image\Application\Providers\ImageServiceProvider;
 
 class ImageModuleServiceProvider extends ModuleServiceProvider
 {
@@ -13,5 +15,13 @@ class ImageModuleServiceProvider extends ModuleServiceProvider
     public function moduleName(): string
     {
         return self::MODULE_NAME;
+    }
+
+    public function register(): void
+    {
+        parent::register();
+
+        $this->app->register(ImageConfigServiceProvider::class);
+        $this->app->register(ImageServiceProvider::class);
     }
 }
