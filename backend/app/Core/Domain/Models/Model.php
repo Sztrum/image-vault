@@ -21,7 +21,7 @@ abstract class Model extends BaseModel
         parent::boot();
 
         static::creating(function (self $model): void {
-            $model->{$model->getKeyName()} = (string) Str::uuid();
+            $model->{$model->getKeyName()} = (string) Str::uuid7();
         });
     }
 }
