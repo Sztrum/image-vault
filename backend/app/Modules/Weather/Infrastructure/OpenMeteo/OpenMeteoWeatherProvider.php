@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Weather\Infrastructure\OpenMeteo;
 
-use App\Modules\Weather\Domain\Contracts\WeatherProviderInterface;
+use App\Modules\Weather\Domain\Services\WeatherProviderInterface;
 use App\Modules\Weather\Domain\ValueObjects\Temperature;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Config\Repository as ConfigContract;

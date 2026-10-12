@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Weather\Domain\Contracts;
+namespace App\Modules\Weather\Domain\Services;
 
 use App\Modules\Weather\Domain\ValueObjects\Temperature;
 
