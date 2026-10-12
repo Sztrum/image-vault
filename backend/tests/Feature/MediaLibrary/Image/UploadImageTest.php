@@ -99,7 +99,9 @@ class UploadImageTest extends TestCase
                 ],
             ]);
         $this->assertSame('anna@example.com', $image->uploader_email);
-        $this->disk->assertExists(["images/{$image->id}.{$extension}", "thumbnails/{$image->id}.webp"]);
+        $this->assertMatchesRegularExpression("#^images/[0-9a-f-]{36}\\.{$extension}$#", $image->storage_path);
+        $this->assertMatchesRegularExpression('#^thumbnails/[0-9a-f-]{36}\\.webp$#', $image->thumbnail_path);
+        $this->disk->assertExists([$image->storage_path, $image->thumbnail_path]);
     }
 
     /**

@@ -41,20 +41,20 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
     public function handle(CommandInterface $command): void
     {
         $newImage = $this->newImage($command);
-        $imageId = (string) Str::uuid7();
+        // Files get their own random name; the record links to them through storage_path and thumbnail_path.
+        $fileName = (string) Str::uuid7();
         $storedPaths = [];
 
         try {
-            $storedPaths[] = $storagePath = $this->storage->storeOriginal($imageId, $newImage->format, $command->filePath);
+            $storedPaths[] = $storagePath = $this->storage->storeOriginal($fileName, $newImage->format, $command->filePath);
             $storedPaths[] = $thumbnailPath = $this->storage->storeThumbnail(
-                $imageId,
+                $fileName,
                 $this->thumbnailGenerator->generate($command->filePath),
             );
             $metadata = $this->metadataExtractor->extract($command->filePath, $newImage->format);
             $temperature = $this->weatherProvider->currentTemperatureInKatowice();
 
             $image = $this->imageRepository->model();
-            $image->id = $imageId;
             $image->fill([
                 'original_name' => $newImage->original_name->value,
                 'extension' => $newImage->format->value,
