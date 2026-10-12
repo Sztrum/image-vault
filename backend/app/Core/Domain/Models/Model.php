@@ -21,7 +21,10 @@ abstract class Model extends BaseModel
         parent::boot();
 
         static::creating(function (self $model): void {
-            $model->{$model->getKeyName()} = (string) Str::uuid7();
+            // Keep an id assigned up front (e.g. files named after it before the insert).
+            if ($model->getKey() === null) {
+                $model->{$model->getKeyName()} = (string) Str::uuid7();
+            }
         });
     }
 }
