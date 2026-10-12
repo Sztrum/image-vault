@@ -6,7 +6,7 @@ namespace App\Modules\MediaLibrary\Image\Domain\Enums;
 
 use App\Modules\MediaLibrary\Image\Domain\Exceptions\UnsupportedImageFormatException;
 
-enum ImageFormat: string
+enum ImageFormatEnum: string
 {
     case JPG = 'jpg';
     case PNG = 'png';

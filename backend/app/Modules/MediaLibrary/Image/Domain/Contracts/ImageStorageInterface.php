@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\MediaLibrary\Image\Domain\Contracts;
 
-use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormat;
+use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 
 interface ImageStorageInterface
 {
     /**
      * @return string storage path of the original
      */
-    public function storeOriginal(string $imageId, ImageFormat $format, string $sourcePath): string;
+    public function storeOriginal(string $imageId, ImageFormatEnum $format, string $sourcePath): string;
 
     /**
      * @return string storage path of the thumbnail
