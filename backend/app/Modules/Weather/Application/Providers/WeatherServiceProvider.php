@@ -8,7 +8,7 @@ use App\Core\Application\Providers\ServiceProvider;
 use App\Modules\Weather\Domain\Contracts\WeatherProviderInterface;
 use App\Modules\Weather\Infrastructure\OpenMeteo\OpenMeteoWeatherProvider;
 
-class WeatherBindingsServiceProvider extends ServiceProvider
+class WeatherServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
