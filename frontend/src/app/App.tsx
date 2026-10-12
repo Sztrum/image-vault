@@ -1,3 +1,5 @@
+import { GalleryPage } from '@/pages/gallery'
+
 import { Providers } from './providers'
 
 export function App() {
@@ -9,7 +11,9 @@ export function App() {
             <h1 className="text-xl font-semibold">Image Vault</h1>
           </div>
         </header>
-        <main className="mx-auto max-w-6xl px-4 py-8" />
+        <main className="mx-auto max-w-6xl px-4 py-8">
+          <GalleryPage />
+        </main>
       </div>
     </Providers>
   )
