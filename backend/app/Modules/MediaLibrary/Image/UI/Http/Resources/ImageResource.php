@@ -40,9 +40,6 @@ class ImageResource extends ApiResponseResource
         return [];
     }
 
-    /**
-     * Absolute, because the frontend runs on a different host.
-     */
     private function imageUrl(Image $image, string $file): string
     {
         return implode('/', [ImageRouteServiceProvider::getBaseUrl(), 'images', $image->id, $file]);

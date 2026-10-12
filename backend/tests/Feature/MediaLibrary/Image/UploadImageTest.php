@@ -181,7 +181,7 @@ class UploadImageTest extends TestCase
     public function test_it_removes_stored_files_when_saving_to_database_fails(): void
     {
         $this->partialMock(EloquentImageRepository::class, function (MockInterface $mock): void {
-            $mock->shouldReceive('save')->andThrow(new RuntimeException('Database is down'));
+            $mock->shouldReceive('createFromUpload')->andThrow(new RuntimeException('Database is down'));
         });
 
         $this->upload($this->makeImage(600, 600, 'png', 'photo.png'))->assertInternalServerError();
