@@ -24,36 +24,22 @@ TODO (E10)
 
 ### Backend
 
-#### Moduł `MediaLibrary/Image`
+**Szkielet (`app/Core`, `app/Shared`)**: wspólne fundamenty, które przeniosłem z moich innych projektów, żeby trzymać jeden standard:
+- `CommandBus` z transakcjami dla zapisów i dodany `QueryBus` dla odczytów (CQRS-lite),
+- bazowy model z UUID v7, `ExceptionHandler` zwracający każdy błąd jako JSON, bazowe FormRequesty i zasoby API.
 
-Rdzeń aplikacji. Na razie zawiera warstwę domeny: reguły biznesowe obrazu i kontrakty, bez I/O i bez HTTP. Upload, miniatury, metadane i endpointy dochodzą w kolejnych etapach.
+Usunąłem to, czego to API nie potrzebuje (Sanctum, Telescope, Vite, widoki, e-maile). Wersja API jest tylko w URL (`/api/v1`), nie w namespace. Kilku elementów (np. `dispatchManyWithTransaction()`) tu nie używam, ale je zostawiłem, żeby szkielet był taki sam jak w innych projektach.
 
-Moduł `MediaLibrary` jest nadrzędny i rejestruje podmoduł `Image` (`ImageModuleServiceProvider`). Kod jest podzielony na warstwy `UI → Application → Domain ← Infrastructure`.
+**Moduł `MediaLibrary/Image`**: rdzeń aplikacji, podzielony na warstwy `UI → Application → Domain ← Infrastructure`.
+- Reguły biznesowe są w Value Objects. Obiekt z błędnymi danymi nie może powstać, a błąd kończy się odpowiedzią 422 z komunikatem po polsku. Walidacja w FormRequest służy tylko wygodzie użytkownika, bo domena broni się sama.
+- Domena zna tylko interfejsy (`Domain/Contracts`): repozytorium, zapis plików, miniatury i odczyt EXIF/IPTC. Implementacje są w `Infrastructure`, więc można je podmienić, np. w testach.
 
-**Reguły (Value Objects)**: każdy VO sprawdza swoje dane w konstruktorze i rzuca wyjątek domenowy, więc obiekt z błędnymi danymi nie może powstać:
-
-| VO | Reguła | Wyjątek |
-|---|---|---|
-| `ImageDimensions` | szerokość i wysokość co najmniej 500 px | `ImageTooSmallException` |
-| `FileSize` | od 1 B do 5 MB | `EmptyImageException`, `ImageTooLargeException` |
-| `ImageName` | nazwa pliku 1–255 znaków (po `trim`) | `InvalidImageNameException` |
-| `Uploader` | imię 1–100 znaków + `Email` z `Shared` | `InvalidUploaderNameException` |
-
-**Format**: `ImageFormatEnum` (JPG, PNG, WebP, TIFF, BMP) mapuje typ MIME na format i z powrotem. Nieobsługiwany MIME kończy się wyjątkiem `UnsupportedImageFormatException`.
-
-**DTO**:
-- `NewImageDTO` przyjmuje wyłącznie VO i enum, więc do zapisu trafiają tylko sprawdzone dane.
-- `ImageMetadataDTO` przenosi surowe tablice EXIF i IPTC.
-
-**Kontrakty** (`Domain/Contracts`): porty, które implementuje warstwa Infrastructure:
-- `ImageRepositoryInterface`: zapis, odczyt po id, usuwanie i paginacja kursorowa (najnowsze pierwsze),
-- `ImageStorageInterface`: zapis oryginału i miniatury, ścieżka absolutna, usuwanie plików,
-- `ThumbnailGeneratorInterface`: generuje miniaturę WebP,
-- `ImageMetadataExtractorInterface`: wyciąga EXIF i IPTC z pliku.
-
-**Model i tabela**: `Image` to model Eloquent z kluczem UUID v7. Tabela `images` przechowuje dane pliku (nazwa, format, rozmiar, wymiary, ścieżki oryginału i miniatury), dane uploadera, EXIF i IPTC jako JSON oraz opcjonalną temperaturę z chwili uploadu. Indeks `(created_at, id)` obsługuje paginację kursorową.
-
-**Błędy**: wyjątki dziedziczą po `Core\Domain\Exceptions\DomainException` (HTTP 422). Mają tylko klucz tłumaczenia, a komunikaty po polsku są w `Application/Translations/pl/exceptions.php`.
+| Reguła | Gdzie |
+|---|---|
+| obraz co najmniej 500×500 px | `ImageDimensions` |
+| plik od 1 B do 5 MB | `FileSize` |
+| formaty JPG, PNG, WebP, TIFF, BMP | `ImageFormatEnum` |
+| imię uploadera 1–100 znaków i poprawny e-mail | `Uploader` |
 
 ### Frontend
 
