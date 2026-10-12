@@ -15,16 +15,11 @@ use Illuminate\Contracts\Pagination\CursorPaginator;
 /**
  * @extends EloquentModelRepository<Image>
  */
-class EloquentImageRepository extends EloquentModelRepository
+class ImageRepository extends EloquentModelRepository
 {
     public function model(): Image
     {
         return new Image;
-    }
-
-    public function save(Image $image): void
-    {
-        $image->save();
     }
 
     public function createFromUpload(
@@ -49,11 +44,6 @@ class EloquentImageRepository extends EloquentModelRepository
             'temperature_celsius' => $temperature?->celsius,
             'temperature_measured_at' => $temperature?->measuredAt,
         ]);
-    }
-
-    public function firstById(string $id): ?Image
-    {
-        return $this->query()->find($id);
     }
 
     /**

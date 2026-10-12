@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Unit\MediaLibrary\Image;
 
 use App\Modules\MediaLibrary\Image\Domain\Models\Image;
-use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\EloquentImageRepository;
+use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\ImageRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-class EloquentImageRepositoryTest extends TestCase
+class ImageRepositoryTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -20,7 +20,7 @@ class EloquentImageRepositoryTest extends TestCase
         $tieLower = $this->createImage('0199d0a0-0000-7000-8000-000000000002', '2026-10-12 11:00:00');
         $tieHigher = $this->createImage('0199d0a0-0000-7000-8000-000000000003', '2026-10-12 11:00:00');
         $newest = $this->createImage('0199d0a0-0000-7000-8000-000000000004', '2026-10-12 12:00:00');
-        $repository = $this->app->make(EloquentImageRepository::class);
+        $repository = $this->app->make(ImageRepository::class);
 
         $firstPage = $repository->paginateByCursor(2, null);
         $secondPage = $repository->paginateByCursor(2, $firstPage->nextCursor()?->encode());

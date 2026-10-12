@@ -6,7 +6,7 @@ namespace Tests\Feature\MediaLibrary\Image;
 
 use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 use App\Modules\MediaLibrary\Image\Domain\Models\Image;
-use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\EloquentImageRepository;
+use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\ImageRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -180,7 +180,7 @@ class UploadImageTest extends TestCase
 
     public function test_it_removes_stored_files_when_saving_to_database_fails(): void
     {
-        $this->partialMock(EloquentImageRepository::class, function (MockInterface $mock): void {
+        $this->partialMock(ImageRepository::class, function (MockInterface $mock): void {
             $mock->shouldReceive('createFromUpload')->andThrow(new RuntimeException('Database is down'));
         });
 
