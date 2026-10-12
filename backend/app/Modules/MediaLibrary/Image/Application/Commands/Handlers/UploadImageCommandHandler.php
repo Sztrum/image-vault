@@ -10,7 +10,7 @@ use App\Modules\MediaLibrary\Image\Application\Commands\UploadImageCommand;
 use App\Modules\MediaLibrary\Image\Application\Services\ImageFileService;
 use App\Modules\MediaLibrary\Image\Infrastructure\Metadata\PhpExifIptcExtractor;
 use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\ImageRepository;
-use App\Modules\Weather\Infrastructure\OpenMeteo\OpenMeteoWeatherProvider;
+use App\Modules\Weather\Domain\Contracts\WeatherProviderInterface;
 use Throwable;
 
 readonly class UploadImageCommandHandler extends BaseCommandHandler
@@ -18,7 +18,7 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
     public function __construct(
         private ImageFileService $imageFileService,
         private PhpExifIptcExtractor $metadataExtractor,
-        private OpenMeteoWeatherProvider $weatherProvider,
+        private WeatherProviderInterface $weatherProvider,
         private ImageRepository $imageRepository,
     ) {}
 

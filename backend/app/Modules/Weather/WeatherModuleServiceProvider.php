@@ -6,6 +6,7 @@ namespace App\Modules\Weather;
 
 use App\Core\Application\Providers\ModuleServiceProvider;
 use App\Modules\Weather\Application\Providers\WeatherConfigServiceProvider;
+use App\Modules\Weather\Application\Providers\WeatherServiceProvider;
 
 class WeatherModuleServiceProvider extends ModuleServiceProvider
 {
@@ -21,5 +22,6 @@ class WeatherModuleServiceProvider extends ModuleServiceProvider
         parent::register();
 
         $this->app->register(WeatherConfigServiceProvider::class);
+        $this->app->register(WeatherServiceProvider::class);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Weather\Infrastructure\OpenMeteo;
 
+use App\Modules\Weather\Domain\Contracts\WeatherProviderInterface;
 use App\Modules\Weather\Domain\ValueObjects\Temperature;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
@@ -13,7 +14,7 @@ use Illuminate\Http\Client\RequestException;
 use Psr\Log\LoggerInterface;
 use UnexpectedValueException;
 
-class OpenMeteoWeatherProvider
+class OpenMeteoWeatherProvider implements WeatherProviderInterface
 {
     private const string CONFIG_KEY = 'weather::weather.open_meteo';
 
