@@ -21,7 +21,9 @@ final readonly class Uploader
         public Email $email,
     ) {
         $name = trim($name);
-        throw_if($name === '' || mb_strlen($name) > self::NAME_MAX_LENGTH, InvalidUploaderNameException::class);
+        throw_if($name === '' || mb_strlen($name) > self::NAME_MAX_LENGTH, InvalidUploaderNameException::class, null, [
+            'max' => self::NAME_MAX_LENGTH,
+        ]);
 
         $this->name = $name;
     }

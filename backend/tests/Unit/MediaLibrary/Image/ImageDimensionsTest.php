@@ -40,9 +40,12 @@ class ImageDimensionsTest extends TestCase
 
     public function test_exception_is_unprocessable_with_translated_message(): void
     {
-        $exception = new ImageTooSmallException(499, 600);
-
-        $this->assertSame(422, $exception->getStatusCode());
-        $this->assertSame('Obraz musi mieć co najmniej 500×500 px (przesłany: 499×600 px).', $exception->getMessage());
+        try {
+            new ImageDimensions(499, 600);
+            $this->fail('ImageTooSmallException was not thrown.');
+        } catch (ImageTooSmallException $exception) {
+            $this->assertSame(422, $exception->getStatusCode());
+            $this->assertSame('Obraz musi mieć co najmniej 500×500 px (przesłany: 499×600 px).', $exception->getMessage());
+        }
     }
 }

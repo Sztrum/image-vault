@@ -8,8 +8,8 @@ use App\Core\Domain\Exceptions\DomainException;
 
 final class InvalidEmailException extends DomainException
 {
-    public function __construct()
-    {
-        parent::__construct('core::validation.email');
-    }
+    /**
+     * @see backend/app/Core/Application/Translations/pl/validation.php
+     */
+    protected const string DEFAULT_MESSAGE_KEY = 'core::validation.email';
 }

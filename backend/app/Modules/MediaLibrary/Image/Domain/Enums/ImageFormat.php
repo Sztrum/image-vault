@@ -25,7 +25,10 @@ enum ImageFormat: string
             'image/webp' => self::WEBP,
             'image/tiff' => self::TIFF,
             'image/bmp', 'image/x-ms-bmp' => self::BMP,
-            default => throw new UnsupportedImageFormatException($mimeType),
+            default => throw new UnsupportedImageFormatException(replace: [
+                'mime' => $mimeType,
+                'formats' => implode(', ', self::values()),
+            ]),
         };
     }
 

@@ -18,6 +18,6 @@ final readonly class FileSize
         public int $bytes,
     ) {
         throw_if($bytes < 1, EmptyImageException::class);
-        throw_if($bytes > self::MAX_BYTES, ImageTooLargeException::class, $bytes);
+        throw_if($bytes > self::MAX_BYTES, ImageTooLargeException::class, null, ['max' => self::MAX_BYTES / 1024 / 1024]);
     }
 }

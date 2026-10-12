@@ -5,16 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\MediaLibrary\Image\Domain\Exceptions;
 
 use App\Core\Domain\Exceptions\DomainException;
-use App\Modules\MediaLibrary\Image\Domain\ValueObjects\ImageDimensions;
 
 final class ImageTooSmallException extends DomainException
 {
-    public function __construct(int $width, int $height)
-    {
-        parent::__construct('image::exceptions.too_small', [
-            'min' => ImageDimensions::MIN_SIDE,
-            'width' => $width,
-            'height' => $height,
-        ]);
-    }
+    /**
+     * @see backend/app/Modules/MediaLibrary/Image/Application/Translations/pl/exceptions.php
+     */
+    protected const string DEFAULT_MESSAGE_KEY = 'image::exceptions.too_small';
 }

@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\MediaLibrary\Image\Domain\Exceptions;
 
 use App\Core\Domain\Exceptions\DomainException;
-use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormat;
 
 final class UnsupportedImageFormatException extends DomainException
 {
-    public function __construct(string $mimeType)
-    {
-        parent::__construct('image::exceptions.unsupported_format', [
-            'mime' => $mimeType,
-            'formats' => implode(', ', ImageFormat::values()),
-        ]);
-    }
+    /**
+     * @see backend/app/Modules/MediaLibrary/Image/Application/Translations/pl/exceptions.php
+     */
+    protected const string DEFAULT_MESSAGE_KEY = 'image::exceptions.unsupported_format';
 }

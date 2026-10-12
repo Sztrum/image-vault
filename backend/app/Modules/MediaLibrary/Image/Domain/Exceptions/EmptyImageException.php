@@ -8,8 +8,8 @@ use App\Core\Domain\Exceptions\DomainException;
 
 final class EmptyImageException extends DomainException
 {
-    public function __construct()
-    {
-        parent::__construct('image::exceptions.empty');
-    }
+    /**
+     * @see backend/app/Modules/MediaLibrary/Image/Application/Translations/pl/exceptions.php
+     */
+    protected const string DEFAULT_MESSAGE_KEY = 'image::exceptions.empty';
 }

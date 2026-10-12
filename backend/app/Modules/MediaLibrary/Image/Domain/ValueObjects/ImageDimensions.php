@@ -17,6 +17,10 @@ final readonly class ImageDimensions
         public int $width,
         public int $height,
     ) {
-        throw_if($width < self::MIN_SIDE || $height < self::MIN_SIDE, ImageTooSmallException::class, $width, $height);
+        throw_if($width < self::MIN_SIDE || $height < self::MIN_SIDE, ImageTooSmallException::class, null, [
+            'min' => self::MIN_SIDE,
+            'width' => $width,
+            'height' => $height,
+        ]);
     }
 }

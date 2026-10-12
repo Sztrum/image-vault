@@ -18,7 +18,9 @@ final readonly class ImageName
     public function __construct(string $value)
     {
         $value = trim($value);
-        throw_if($value === '' || mb_strlen($value) > self::MAX_LENGTH, InvalidImageNameException::class);
+        throw_if($value === '' || mb_strlen($value) > self::MAX_LENGTH, InvalidImageNameException::class, null, [
+            'max' => self::MAX_LENGTH,
+        ]);
 
         $this->value = $value;
     }

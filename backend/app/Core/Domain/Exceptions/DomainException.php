@@ -10,6 +10,11 @@ use Throwable;
 class DomainException extends HttpException
 {
     /**
+     * Translation key used when no message is given. Subclasses override only this constant.
+     */
+    protected const string DEFAULT_MESSAGE_KEY = '';
+
+    /**
      * @param  array<string, scalar>  $replace
      * @param  array<string, string>  $headers
      */
@@ -20,8 +25,10 @@ class DomainException extends HttpException
         array $headers = [],
         int $code = 0,
     ) {
+        $message ??= static::DEFAULT_MESSAGE_KEY;
+
         parent::__construct(
-            message: $message ? __($message, $replace) : '',
+            message: $message !== '' ? __($message, $replace) : '',
             statusCode: Response::HTTP_UNPROCESSABLE_ENTITY,
             previous: $previous,
             headers: $headers,
