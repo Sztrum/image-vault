@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Weather;
 
-use App\Modules\Weather\Domain\Contracts\WeatherProviderInterface;
+use App\Modules\Weather\Infrastructure\OpenMeteo\OpenMeteoWeatherProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
@@ -86,9 +86,9 @@ class OpenMeteoWeatherProviderTest extends TestCase
         $this->log->shouldHaveReceived('warning')->once();
     }
 
-    private function provider(): WeatherProviderInterface
+    private function provider(): OpenMeteoWeatherProvider
     {
-        return $this->app->make(WeatherProviderInterface::class);
+        return $this->app->make(OpenMeteoWeatherProvider::class);
     }
 
     /**

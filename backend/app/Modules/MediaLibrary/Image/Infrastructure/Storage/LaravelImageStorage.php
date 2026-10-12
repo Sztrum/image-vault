@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\MediaLibrary\Image\Infrastructure\Storage;
 
-use App\Modules\MediaLibrary\Image\Domain\Contracts\ImageStorageInterface;
 use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
@@ -12,7 +11,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\File;
 use RuntimeException;
 
-class LaravelImageStorage implements ImageStorageInterface
+class LaravelImageStorage
 {
     private const string ORIGINALS_DIRECTORY = 'images';
 
@@ -24,6 +23,8 @@ class LaravelImageStorage implements ImageStorageInterface
     ) {}
 
     /**
+     * @return string storage path of the original
+     *
      * @throws RuntimeException
      */
     public function storeOriginal(string $imageId, ImageFormatEnum $format, string $sourcePath): string
@@ -35,6 +36,8 @@ class LaravelImageStorage implements ImageStorageInterface
     }
 
     /**
+     * @return string storage path of the thumbnail
+     *
      * @throws RuntimeException
      */
     public function storeThumbnail(string $imageId, string $contents): string

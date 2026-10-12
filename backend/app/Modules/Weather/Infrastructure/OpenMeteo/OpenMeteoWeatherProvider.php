@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Weather\Infrastructure\OpenMeteo;
 
-use App\Modules\Weather\Domain\Contracts\WeatherProviderInterface;
 use App\Modules\Weather\Domain\ValueObjects\Temperature;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
@@ -14,7 +13,7 @@ use Illuminate\Http\Client\RequestException;
 use Psr\Log\LoggerInterface;
 use UnexpectedValueException;
 
-class OpenMeteoWeatherProvider implements WeatherProviderInterface
+class OpenMeteoWeatherProvider
 {
     private const string CONFIG_KEY = 'weather::weather.open_meteo';
 
@@ -25,6 +24,9 @@ class OpenMeteoWeatherProvider implements WeatherProviderInterface
         private readonly ConfigContract $config,
     ) {}
 
+    /**
+     * Null when Open-Meteo is unavailable or returns no value for the current hour.
+     */
     public function currentTemperatureInKatowice(): ?Temperature
     {
         $now = CarbonImmutable::now($this->config->string(self::CONFIG_KEY . '.timezone'));

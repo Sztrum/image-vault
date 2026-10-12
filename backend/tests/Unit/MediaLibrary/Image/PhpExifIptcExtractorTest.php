@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\MediaLibrary\Image;
 
-use App\Modules\MediaLibrary\Image\Domain\Contracts\ImageMetadataExtractorInterface;
 use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
+use App\Modules\MediaLibrary\Image\Infrastructure\Metadata\PhpExifIptcExtractor;
 use Imagick;
 use ImagickPixel;
 use Tests\TestCase;
@@ -39,8 +39,8 @@ class PhpExifIptcExtractorTest extends TestCase
         unlink($path);
     }
 
-    private function extractor(): ImageMetadataExtractorInterface
+    private function extractor(): PhpExifIptcExtractor
     {
-        return $this->app->make(ImageMetadataExtractorInterface::class);
+        return $this->app->make(PhpExifIptcExtractor::class);
     }
 }

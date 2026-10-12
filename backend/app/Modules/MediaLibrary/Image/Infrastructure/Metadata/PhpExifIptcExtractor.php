@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\MediaLibrary\Image\Infrastructure\Metadata;
 
-use App\Modules\MediaLibrary\Image\Domain\Contracts\ImageMetadataExtractorInterface;
 use App\Modules\MediaLibrary\Image\Domain\DTO\ImageMetadataDTO;
 use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 
-class PhpExifIptcExtractor implements ImageMetadataExtractorInterface
+class PhpExifIptcExtractor
 {
     private const array EXIF_FORMATS = [ImageFormatEnum::JPG, ImageFormatEnum::TIFF];
 

@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Modules\MediaLibrary\Image\Infrastructure\Repositories;
 
 use App\Core\Infrastructure\Repositories\Eloquent\EloquentModelRepository;
-use App\Modules\MediaLibrary\Image\Domain\Contracts\ImageRepositoryInterface;
 use App\Modules\MediaLibrary\Image\Domain\Models\Image;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 
 /**
  * @extends EloquentModelRepository<Image>
  */
-class EloquentImageRepository extends EloquentModelRepository implements ImageRepositoryInterface
+class EloquentImageRepository extends EloquentModelRepository
 {
     public function model(): Image
     {
@@ -30,6 +29,8 @@ class EloquentImageRepository extends EloquentModelRepository implements ImageRe
     }
 
     /**
+     * Newest first: created_at DESC, id DESC.
+     *
      * @return CursorPaginator<int, Image>
      */
     public function paginateByCursor(int $perPage, ?string $cursor): CursorPaginator

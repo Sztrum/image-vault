@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\MediaLibrary\Image;
 
-use App\Modules\MediaLibrary\Image\Domain\Contracts\ThumbnailGeneratorInterface;
+use App\Modules\MediaLibrary\Image\Infrastructure\Imaging\InterventionThumbnailGenerator;
 use Imagick;
 use ImagickPixel;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -51,9 +51,9 @@ class InterventionThumbnailGeneratorTest extends TestCase
         $this->assertSame([300, 150, 'image/webp'], $this->describe($thumbnail));
     }
 
-    private function generator(): ThumbnailGeneratorInterface
+    private function generator(): InterventionThumbnailGenerator
     {
-        return $this->app->make(ThumbnailGeneratorInterface::class);
+        return $this->app->make(InterventionThumbnailGenerator::class);
     }
 
     private function makeImage(int $width, int $height, string $format): string

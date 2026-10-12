@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\MediaLibrary\Image\Infrastructure\Imaging;
 
-use App\Modules\MediaLibrary\Image\Domain\Contracts\ThumbnailGeneratorInterface;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Intervention\Image\ImageManager;
 
-class InterventionThumbnailGenerator implements ThumbnailGeneratorInterface
+class InterventionThumbnailGenerator
 {
     private readonly ImageManager $manager;
 
@@ -19,6 +18,9 @@ class InterventionThumbnailGenerator implements ThumbnailGeneratorInterface
         $this->manager = ImageManager::imagick();
     }
 
+    /**
+     * @return string binary WebP contents
+     */
     public function generate(string $sourcePath): string
     {
         $maxSide = $this->config->integer('image::image.thumbnail_max_side');

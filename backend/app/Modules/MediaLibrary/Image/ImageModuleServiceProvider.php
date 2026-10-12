@@ -6,7 +6,6 @@ namespace App\Modules\MediaLibrary\Image;
 
 use App\Core\Application\Providers\ModuleServiceProvider;
 use App\Modules\MediaLibrary\Image\Application\Providers\ImageConfigServiceProvider;
-use App\Modules\MediaLibrary\Image\Application\Providers\ImageServiceProvider;
 
 class ImageModuleServiceProvider extends ModuleServiceProvider
 {
@@ -22,6 +21,5 @@ class ImageModuleServiceProvider extends ModuleServiceProvider
         parent::register();
 
         $this->app->register(ImageConfigServiceProvider::class);
-        $this->app->register(ImageServiceProvider::class);
     }
 }
