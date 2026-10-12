@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\MediaLibrary\Image\Domain\Models;
 
 use App\Core\Domain\Models\Model;
+use Database\Factories\ImageFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Carbon;
 
 /**
@@ -25,8 +28,12 @@ use Illuminate\Support\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
+#[UseFactory(ImageFactory::class)]
 class Image extends Model
 {
+    /** @use HasFactory<ImageFactory> */
+    use HasFactory;
+
     protected $guarded = [];
 
     /**

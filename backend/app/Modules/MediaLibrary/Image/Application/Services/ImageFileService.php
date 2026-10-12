@@ -14,6 +14,7 @@ use App\Modules\MediaLibrary\Image\Domain\Exceptions\ImageTooSmallException;
 use App\Modules\MediaLibrary\Image\Domain\Exceptions\InvalidImageNameException;
 use App\Modules\MediaLibrary\Image\Domain\Exceptions\InvalidUploaderNameException;
 use App\Modules\MediaLibrary\Image\Domain\Exceptions\UnsupportedImageFormatException;
+use App\Modules\MediaLibrary\Image\Domain\Models\Image;
 use App\Modules\MediaLibrary\Image\Domain\ValueObjects\FileSize;
 use App\Modules\MediaLibrary\Image\Domain\ValueObjects\ImageDimensions;
 use App\Modules\MediaLibrary\Image\Domain\ValueObjects\ImageName;
@@ -24,6 +25,7 @@ use App\Shared\Domain\Exceptions\InvalidEmailException;
 use App\Shared\Domain\ValueObjects\Email;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 readonly class ImageFileService
@@ -88,5 +90,27 @@ readonly class ImageFileService
     public function deleteFiles(StoredImageFilesDTO $storedFiles): void
     {
         $this->storage->delete($storedFiles->original_path, $storedFiles->thumbnail_path);
+    }
+
+    public function deleteImageFiles(Image $image): void
+    {
+        $this->storage->delete($image->storage_path, $image->thumbnail_path);
+    }
+
+    public function thumbnailResponse(Image $image): StreamedResponse
+    {
+        return $this->storage->response(storagePath: $image->thumbnail_path, headers: [
+            'Content-Type' => 'image/webp',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
+    public function downloadResponse(Image $image): StreamedResponse
+    {
+        return $this->storage->download(
+            storagePath: $image->storage_path,
+            name: $image->original_name,
+            headers: ['Content-Type' => $image->mime_type],
+        );
     }
 }

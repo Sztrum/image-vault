@@ -12,6 +12,10 @@ class ImageRouteServiceProvider extends ApiRouteServiceProvider
 {
     protected function registerRoutes(Registrar $router): void
     {
+        $router->get('/', [ImageController::class, 'index'])->name('index');
         $router->post('/', [ImageController::class, 'store'])->name('store');
+        $router->get('{id}/thumbnail', [ImageController::class, 'thumbnail'])->name('thumbnail');
+        $router->get('{id}/download', [ImageController::class, 'download'])->name('download');
+        $router->delete('{id}', [ImageController::class, 'destroy'])->name('destroy');
     }
 }
