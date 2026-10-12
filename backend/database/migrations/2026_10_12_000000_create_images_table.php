@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Migrations\Migration;
+use App\Shared\Migrations\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class extends AbstractMigration
 {
+    protected string $table_name = 'images';
+
     public function up(): void
     {
-        Schema::create('images', function (Blueprint $table): void {
+        Schema::create($this->table_name, function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('original_name');
             $table->string('extension', 10);
@@ -30,10 +32,5 @@ return new class extends Migration
 
             $table->index(['created_at', 'id']);
         });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('images');
     }
 };
