@@ -27,9 +27,9 @@ class LaravelImageStorage
      *
      * @throws RuntimeException
      */
-    public function storeOriginal(string $imageId, ImageFormatEnum $format, string $sourcePath): string
+    public function storeOriginal(string $fileName, ImageFormatEnum $format, string $sourcePath): string
     {
-        $path = $this->disk()->putFileAs(self::ORIGINALS_DIRECTORY, new File($sourcePath), $imageId . '.' . $format->value);
+        $path = $this->disk()->putFileAs(self::ORIGINALS_DIRECTORY, new File($sourcePath), $fileName . '.' . $format->value);
         throw_if($path === false, RuntimeException::class, 'Could not store the original image.');
 
         return $path;
@@ -40,9 +40,9 @@ class LaravelImageStorage
      *
      * @throws RuntimeException
      */
-    public function storeThumbnail(string $imageId, string $contents): string
+    public function storeThumbnail(string $fileName, string $contents): string
     {
-        $path = self::THUMBNAILS_DIRECTORY . '/' . $imageId . '.webp';
+        $path = self::THUMBNAILS_DIRECTORY . '/' . $fileName . '.webp';
         throw_unless($this->disk()->put($path, $contents), RuntimeException::class, 'Could not store the thumbnail.');
 
         return $path;
