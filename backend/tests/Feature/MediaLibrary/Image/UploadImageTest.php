@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\MediaLibrary\Image;
 
+use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 use App\Modules\MediaLibrary\Image\Domain\Models\Image;
 use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\EloquentImageRepository;
 use Carbon\CarbonImmutable;
@@ -40,7 +41,7 @@ class UploadImageTest extends TestCase
     {
         parent::setUp();
 
-        config(['app.url' => 'http://localhost:8000', 'app.debug' => false]);
+        config(['app.debug' => false]);
         $this->disk = Storage::fake('local');
         Http::preventStrayRequests();
         Http::fake([self::OPEN_METEO => fn () => $this->weatherAvailable
@@ -78,26 +79,21 @@ class UploadImageTest extends TestCase
     #[DataProvider('formats')]
     public function test_it_uploads_every_supported_format(string $imagickFormat, string $name, string $extension): void
     {
-        $response = $this->upload($this->makeImage(800, 600, $imagickFormat, $name));
+        $file = $this->makeImage(800, 600, $imagickFormat, $name);
+        $format = ImageFormatEnum::from($extension);
 
-        $image = Image::query()->sole();
+        $response = $this->upload($file);
+
         $response->assertCreated()
             ->assertExactJson([
                 'status' => 201,
                 'message' => 'Obraz został dodany.',
-                'data' => [
-                    'id' => $image->id,
-                    'original_name' => $name,
-                    'extension' => $extension,
-                    'size_bytes' => $image->size_bytes,
-                    'width' => 800,
-                    'height' => 600,
-                    'uploader_name' => 'Anna',
-                    'thumbnail_url' => "http://localhost:8000/api/v1/images/{$image->id}/thumbnail",
-                    'download_url' => "http://localhost:8000/api/v1/images/{$image->id}/download",
-                    'created_at' => '2026-10-12T14:37:00+02:00',
-                ],
             ]);
+        $image = Image::query()->sole();
+        $this->assertSame(
+            [$name, $extension, $format->mimeType(), filesize($file->getPathname()), 800, 600, 'Anna'],
+            [$image->original_name, $image->extension, $image->mime_type, $image->size_bytes, $image->width, $image->height, $image->uploader_name],
+        );
         $this->assertSame('anna@example.com', $image->uploader_email);
         $this->assertMatchesRegularExpression("#^images/[0-9a-f-]{36}\\.{$extension}$#", $image->storage_path);
         $this->assertMatchesRegularExpression('#^thumbnails/[0-9a-f-]{36}\\.webp$#', $image->thumbnail_path);

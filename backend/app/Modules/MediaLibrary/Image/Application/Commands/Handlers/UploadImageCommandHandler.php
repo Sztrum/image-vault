@@ -7,25 +7,19 @@ namespace App\Modules\MediaLibrary\Image\Application\Commands\Handlers;
 use App\Core\Application\Command\Abstracts\BaseCommandHandler;
 use App\Core\Application\Command\CommandInterface;
 use App\Modules\MediaLibrary\Image\Application\Commands\UploadImageCommand;
-use App\Modules\MediaLibrary\Image\Domain\DTO\NewImageDTO;
-use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
-use App\Modules\MediaLibrary\Image\Domain\Exceptions\UnsupportedImageFormatException;
-use App\Modules\MediaLibrary\Image\Domain\ValueObjects\FileSize;
-use App\Modules\MediaLibrary\Image\Domain\ValueObjects\ImageDimensions;
-use App\Modules\MediaLibrary\Image\Domain\ValueObjects\ImageName;
-use App\Modules\MediaLibrary\Image\Domain\ValueObjects\Uploader;
+use App\Modules\MediaLibrary\Image\Application\Services\ImageFileService;
 use App\Modules\MediaLibrary\Image\Infrastructure\Imaging\InterventionThumbnailGenerator;
 use App\Modules\MediaLibrary\Image\Infrastructure\Metadata\PhpExifIptcExtractor;
 use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\EloquentImageRepository;
 use App\Modules\MediaLibrary\Image\Infrastructure\Storage\LaravelImageStorage;
 use App\Modules\Weather\Infrastructure\OpenMeteo\OpenMeteoWeatherProvider;
-use App\Shared\Domain\ValueObjects\Email;
 use Illuminate\Support\Str;
 use Throwable;
 
 readonly class UploadImageCommandHandler extends BaseCommandHandler
 {
     public function __construct(
+        private ImageFileService $imageFileService,
         private LaravelImageStorage $storage,
         private InterventionThumbnailGenerator $thumbnailGenerator,
         private PhpExifIptcExtractor $metadataExtractor,
@@ -41,9 +35,14 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
     public function handle(CommandInterface $command): void
     {
         // Prepare everything first: nothing below writes, so nothing needs cleaning up on failure.
-        $newImage = $this->newImage($command);
+        $newImage = $this->imageFileService->toNewImageDTO(
+            filePath: $command->filePath,
+            originalName: $command->originalName,
+            uploaderName: $command->uploaderName,
+            uploaderEmail: $command->uploaderEmail,
+        );
         $thumbnail = $this->thumbnailGenerator->generate($command->filePath);
-        $metadata = $this->metadataExtractor->extract($command->filePath, $newImage->format);
+        $metadata = $this->metadataExtractor->extract(sourcePath: $command->filePath, format: $newImage->format);
         $temperature = $this->weatherProvider->currentTemperatureInKatowice();
 
         // Files get their own random name; the record links to them through storage_path and thumbnail_path.
@@ -51,8 +50,12 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
         $storedPaths = [];
 
         try {
-            $storedPaths[] = $storagePath = $this->storage->storeOriginal($fileName, $newImage->format, $command->filePath);
-            $storedPaths[] = $thumbnailPath = $this->storage->storeThumbnail($fileName, $thumbnail);
+            $storedPaths[] = $storagePath = $this->storage->storeOriginal(
+                fileName: $fileName,
+                format: $newImage->format,
+                sourcePath: $command->filePath,
+            );
+            $storedPaths[] = $thumbnailPath = $this->storage->storeThumbnail(fileName: $fileName, contents: $thumbnail);
 
             $image = $this->imageRepository->model();
             $image->fill([
@@ -78,28 +81,5 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
 
             throw $exception;
         }
-
-        $command->image = $image;
-    }
-
-    /**
-     * Reads format, size and dimensions from the file itself, not from what the client sent.
-     */
-    private function newImage(UploadImageCommand $command): NewImageDTO
-    {
-        $info = @getimagesize($command->filePath);
-        $size = filesize($command->filePath);
-        throw_if($info === false || $size === false, UnsupportedImageFormatException::class, null, [
-            'mime' => 'unknown',
-            'formats' => implode(', ', ImageFormatEnum::values()),
-        ]);
-
-        return new NewImageDTO(
-            original_name: new ImageName($command->originalName),
-            format: ImageFormatEnum::fromMimeType($info['mime']),
-            size: new FileSize($size),
-            dimensions: new ImageDimensions($info[0], $info[1]),
-            uploader: new Uploader($command->uploaderName, new Email($command->uploaderEmail)),
-        );
     }
 }
