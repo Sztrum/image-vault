@@ -1,60 +1,56 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
-import { isApiValidationError } from '@/shared/api'
 import { Button, Field } from '@/shared/ui'
 
-import { useFilePreview } from '../model/useFilePreview'
+import type { UploaderField } from '../lib/uploadErrors'
 import { ACCEPTED_EXTENSIONS, uploadSchema, type UploadFormValues } from '../model/uploadSchema'
-import { useUploadImage } from '../model/useUploadImage'
-import { FilePreview } from './FilePreview'
-
-const FORM_FIELDS = ['file', 'uploader_name', 'uploader_email'] as const
+import { useUploadQueue, type UploadResult } from '../model/useUploadQueue'
+import { UploadQueueList } from './UploadQueueList'
 
 const inputClassName =
   'rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none aria-invalid:border-red-500'
 
-const isFormField = (field: string): field is (typeof FORM_FIELDS)[number] =>
-  (FORM_FIELDS as readonly string[]).includes(field)
+const summaryOf = ({ sent, failed }: UploadResult) =>
+  failed > 0 ? `Dodano obrazów: ${sent}, nie udało się: ${failed}.` : `Dodano obrazów: ${sent}.`
 
 export function UploadImageForm() {
   const [fileInputKey, setFileInputKey] = useState(0)
-  const { previewUrl, showPreview } = useFilePreview()
-  const { mutate, isPending, isSuccess, data: successMessage } = useUploadImage()
+  const [summary, setSummary] = useState<string | null>(null)
+  const { items, select, upload } = useUploadQueue()
   const {
     control,
     register,
     handleSubmit,
     reset,
     setError,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<UploadFormValues>({
     resolver: zodResolver(uploadSchema),
-    defaultValues: { uploader_name: '', uploader_email: '' },
+    defaultValues: { files: [], uploader_name: '', uploader_email: '' },
   })
-  const selectedFile = useWatch({ control, name: 'file' })
 
-  const submit = handleSubmit((values) =>
-    mutate(values, {
-      onSuccess: () => {
-        reset()
-        showPreview(null)
-        setFileInputKey((key) => key + 1)
-      },
-      onError: (error) => {
-        if (!isApiValidationError(error)) {
-          setError('root', { message: error.message })
+  const submit = handleSubmit(async ({ uploader_name, uploader_email }) => {
+    setSummary(null)
+    const result = await upload({ uploader_name, uploader_email })
 
-          return
-        }
+    if (result.uploaderErrors) {
+      Object.entries(result.uploaderErrors).forEach(([field, message]) =>
+        setError(field as UploaderField, { message }),
+      )
 
-        Object.entries(error.errors).forEach(([field, messages]) => {
-          setError(isFormField(field) ? field : 'root', { message: messages[0] })
-        })
-      },
-    }),
-  )
+      return
+    }
+
+    setSummary(summaryOf(result))
+
+    if (result.failed === 0) {
+      reset()
+      select([])
+      setFileInputKey((key) => key + 1)
+    }
+  })
 
   return (
     <form
@@ -62,32 +58,35 @@ export function UploadImageForm() {
       noValidate
       className="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
     >
-      <h2 className="text-lg font-semibold text-slate-900">Dodaj obraz</h2>
+      <h2 className="text-lg font-semibold text-slate-900">Dodaj obrazy</h2>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Field
-          id="file"
-          label="Plik"
-          hint="JPG, PNG, WebP, TIFF lub BMP, do 5 MB, min. 500×500 px"
-          error={errors.file?.message}
+          id="files"
+          label="Pliki"
+          hint="Możesz wybrać kilka. JPG, PNG, WebP, TIFF lub BMP, do 5 MB, min. 500×500 px"
+          error={errors.files?.message}
         >
           <Controller
             control={control}
-            name="file"
+            name="files"
             render={({ field }) => (
               <input
                 key={fileInputKey}
                 ref={field.ref}
-                id="file"
+                id="files"
                 name={field.name}
                 type="file"
+                multiple
                 accept={ACCEPTED_EXTENSIONS}
-                aria-invalid={errors.file ? true : undefined}
+                disabled={isSubmitting}
+                aria-invalid={errors.files ? true : undefined}
                 onBlur={field.onBlur}
                 onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null
-                  showPreview(file)
-                  field.onChange(file)
+                  const files = Array.from(event.target.files ?? [])
+                  select(files)
+                  setSummary(null)
+                  field.onChange(files)
                 }}
                 className="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold"
               />
@@ -118,20 +117,15 @@ export function UploadImageForm() {
         </Field>
       </div>
 
-      {selectedFile instanceof File && <FilePreview file={selectedFile} previewUrl={previewUrl} />}
+      {items.length > 0 && <UploadQueueList items={items} />}
 
-      {errors.root?.message && (
-        <p role="alert" className="text-sm text-red-600">
-          {errors.root.message}
-        </p>
-      )}
-      {isSuccess && (
-        <p role="status" className="text-sm text-green-700">
-          {successMessage}
+      {summary && (
+        <p role="status" className="text-sm text-slate-700">
+          {summary}
         </p>
       )}
 
-      <Button type="submit" isLoading={isPending}>
+      <Button type="submit" isLoading={isSubmitting}>
         Wyślij
       </Button>
     </form>

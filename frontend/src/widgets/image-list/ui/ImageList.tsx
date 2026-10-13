@@ -1,6 +1,7 @@
 import { ImageCard, useInfiniteImages } from '@/entities/image'
 import { DeleteImageButton } from '@/features/delete-image'
 import { DownloadImageButton } from '@/features/download-image'
+import { ImageDetailsButton } from '@/features/view-image-details'
 import { ErrorMessage, Spinner } from '@/shared/ui'
 
 import { useInfiniteScroll } from '../model/useInfiniteScroll'
@@ -55,6 +56,7 @@ export function ImageList() {
               image={image}
               actions={
                 <>
+                  <ImageDetailsButton image={image} />
                   <DownloadImageButton image={image} />
                   <DeleteImageButton image={image} />
                 </>

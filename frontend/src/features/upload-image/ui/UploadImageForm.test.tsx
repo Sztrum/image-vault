@@ -36,7 +36,7 @@ describe('UploadImageForm', () => {
 
     await user.click(screen.getByRole('button', { name: 'Wyślij' }))
 
-    expect(await screen.findByText('Wybierz plik obrazu.')).toBeInTheDocument()
+    expect(await screen.findByText('Wybierz co najmniej jeden obraz.')).toBeInTheDocument()
     expect(screen.getByText('Podaj imię.')).toBeInTheDocument()
     expect(screen.getByText('Podaj adres e-mail.')).toBeInTheDocument()
   })
@@ -53,7 +53,7 @@ describe('UploadImageForm', () => {
 
     renderWithQueryClient(<UploadImageForm />)
 
-    await user.upload(screen.getByLabelText('Plik'), file)
+    await user.upload(screen.getByLabelText('Pliki'), file)
     await fillUploader(user)
     await user.click(screen.getByRole('button', { name: 'Wyślij' }))
 
@@ -77,7 +77,7 @@ describe('UploadImageForm', () => {
 
     renderWithQueryClient(<UploadImageForm />)
 
-    await user.upload(screen.getByLabelText('Plik'), pngFile())
+    await user.upload(screen.getByLabelText('Pliki'), pngFile())
     await fillUploader(user)
     await user.click(screen.getByRole('button', { name: 'Wyślij' }))
 
@@ -104,16 +104,16 @@ describe('UploadImageForm', () => {
     renderWithQueryClient(<GalleryPage />)
     await screen.findByRole('article')
 
-    await user.upload(screen.getByLabelText('Plik'), pngFile('gory.png'))
-    expect(screen.getByRole('img', { name: 'Podgląd wybranego pliku' })).toBeInTheDocument()
+    await user.upload(screen.getByLabelText('Pliki'), pngFile('gory.png'))
+    expect(screen.getByRole('img', { name: 'Podgląd: gory.png' })).toBeInTheDocument()
     await fillUploader(user)
     await user.click(screen.getByRole('button', { name: 'Wyślij' }))
 
-    expect(await screen.findByText('Obraz został dodany.')).toBeInTheDocument()
+    expect(await screen.findByText('Dodano obrazów: 1.')).toBeInTheDocument()
     expect(contentType).toMatch(/^multipart\/form-data; boundary=/)
     expect(screen.getByLabelText('Imię')).toHaveValue('')
     expect(screen.getByLabelText('E-mail')).toHaveValue('')
-    expect(screen.queryByRole('img', { name: 'Podgląd wybranego pliku' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: 'Podgląd: gory.png' })).not.toBeInTheDocument()
     expect(listRequests).toBe(2)
   })
 
@@ -130,7 +130,7 @@ describe('UploadImageForm', () => {
 
     renderWithQueryClient(<UploadImageForm />)
 
-    await user.upload(screen.getByLabelText('Plik'), pngFile())
+    await user.upload(screen.getByLabelText('Pliki'), pngFile())
     await fillUploader(user)
     await user.click(screen.getByRole('button', { name: 'Wyślij' }))
 

@@ -1,6 +1,6 @@
 import { httpClient } from '@/shared/api'
 
-import type { ImagesPage } from '../model/types'
+import type { ImageDetails, ImagesPage } from '../model/types'
 
 const IMAGES_PER_PAGE = 10
 
@@ -10,4 +10,10 @@ export async function fetchImages(cursor: string | null): Promise<ImagesPage> {
   })
 
   return data
+}
+
+export async function fetchImage(id: string): Promise<ImageDetails> {
+  const { data } = await httpClient.get<{ data: ImageDetails }>(`/images/${id}`)
+
+  return data.data
 }

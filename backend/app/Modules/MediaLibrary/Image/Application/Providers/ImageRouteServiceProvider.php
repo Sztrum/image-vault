@@ -14,6 +14,7 @@ class ImageRouteServiceProvider extends ApiRouteServiceProvider
     {
         $router->get('/', [ImageController::class, 'index'])->name('index');
         $router->post('/', [ImageController::class, 'store'])->name('store');
+        $router->get('{id}', [ImageController::class, 'show'])->name('show');
         $router->get('{id}/thumbnail', [ImageController::class, 'thumbnail'])->name('thumbnail');
         $router->get('{id}/download', [ImageController::class, 'download'])->name('download');
         $router->delete('{id}', [ImageController::class, 'destroy'])->name('destroy');
