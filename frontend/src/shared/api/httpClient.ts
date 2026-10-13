@@ -5,6 +5,7 @@ import { env } from '@/shared/config'
 import { toApiError } from './apiError'
 
 export const httpClient = axios.create({
+  adapter: 'fetch',
   baseURL: env.apiUrl,
   headers: {
     Accept: 'application/json',
