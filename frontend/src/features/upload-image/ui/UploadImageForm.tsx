@@ -1,12 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 import { Button, Field } from '@/shared/ui'
 
 import type { UploaderField } from '../lib/uploadErrors'
-import { ACCEPTED_EXTENSIONS, uploadSchema, type UploadFormValues } from '../model/uploadSchema'
+import { uploadSchema, type UploadFormValues } from '../model/uploadSchema'
 import { useUploadQueue, type UploadResult } from '../model/useUploadQueue'
+import { UploadFilesField } from './UploadFilesField'
 import { UploadQueueList } from './UploadQueueList'
 
 const inputClassName =
@@ -18,7 +19,7 @@ const summaryOf = ({ sent, failed }: UploadResult) =>
 export function UploadImageForm() {
   const [fileInputKey, setFileInputKey] = useState(0)
   const [summary, setSummary] = useState<string | null>(null)
-  const { items, select, upload } = useUploadQueue()
+  const { items, select, clear, upload } = useUploadQueue()
   const {
     control,
     register,
@@ -30,6 +31,11 @@ export function UploadImageForm() {
     resolver: zodResolver(uploadSchema),
     defaultValues: { files: [], uploader_name: '', uploader_email: '' },
   })
+
+  const selectFiles = (files: File[]) => {
+    select(files)
+    setSummary(null)
+  }
 
   const submit = handleSubmit(async ({ uploader_name, uploader_email }) => {
     setSummary(null)
@@ -47,7 +53,7 @@ export function UploadImageForm() {
 
     if (result.failed === 0) {
       reset()
-      select([])
+      clear()
       setFileInputKey((key) => key + 1)
     }
   })
@@ -61,38 +67,12 @@ export function UploadImageForm() {
       <h2 className="text-lg font-semibold text-slate-900">Dodaj obrazy</h2>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Field
-          id="files"
-          label="Pliki"
-          hint="Możesz wybrać kilka. JPG, PNG, WebP, TIFF lub BMP, do 5 MB, min. 500×500 px"
-          error={errors.files?.message}
-        >
-          <Controller
-            control={control}
-            name="files"
-            render={({ field }) => (
-              <input
-                key={fileInputKey}
-                ref={field.ref}
-                id="files"
-                name={field.name}
-                type="file"
-                multiple
-                accept={ACCEPTED_EXTENSIONS}
-                disabled={isSubmitting}
-                aria-invalid={errors.files ? true : undefined}
-                onBlur={field.onBlur}
-                onChange={(event) => {
-                  const files = Array.from(event.target.files ?? [])
-                  select(files)
-                  setSummary(null)
-                  field.onChange(files)
-                }}
-                className="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold"
-              />
-            )}
-          />
-        </Field>
+        <UploadFilesField
+          control={control}
+          resetKey={fileInputKey}
+          disabled={isSubmitting}
+          onSelect={selectFiles}
+        />
 
         <Field id="uploader_name" label="Imię" error={errors.uploader_name?.message}>
           <input
