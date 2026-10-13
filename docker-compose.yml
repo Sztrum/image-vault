@@ -21,6 +21,7 @@ services:
         env_file: ./backend/.env
         environment:
             DB_HOST: mysql
+            PHP_CLI_SERVER_WORKERS: 4
         ports:
             - "8000:8000"
         volumes:

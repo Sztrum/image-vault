@@ -38,8 +38,9 @@ export function useDeleteImage(imageId: string) {
     },
     onError: (_error, _variables, result) => {
       queryClient.setQueryData(imageKeys.list(), result?.previous)
+
+      return queryClient.invalidateQueries({ queryKey: imageKeys.list() })
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: imageKeys.list() }),
   })
 }
 
