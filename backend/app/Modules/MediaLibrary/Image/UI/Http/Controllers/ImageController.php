@@ -9,8 +9,8 @@ use App\Modules\MediaLibrary\Image\Application\Commands\DeleteImageCommand;
 use App\Modules\MediaLibrary\Image\Application\Commands\UploadImageCommand;
 use App\Modules\MediaLibrary\Image\Application\Queries\GetImageQuery;
 use App\Modules\MediaLibrary\Image\Application\Queries\ListImagesQuery;
-use App\Modules\MediaLibrary\Image\Application\Services\ImageFileService;
 use App\Modules\MediaLibrary\Image\Domain\DTO\UploadImageDTO;
+use App\Modules\MediaLibrary\Image\Infrastructure\Storage\LaravelImageStorage;
 use App\Modules\MediaLibrary\Image\UI\Http\Requests\ImageIndexRequest;
 use App\Modules\MediaLibrary\Image\UI\Http\Requests\ImageStoreRequest;
 use App\Modules\MediaLibrary\Image\UI\Http\Resources\CollectionImageResource;
@@ -53,14 +53,23 @@ class ImageController extends ApiController
         );
     }
 
-    public function thumbnail(string $id, GetImageQuery $query, ImageFileService $imageFileService): StreamedResponse
+    public function thumbnail(string $id, GetImageQuery $query, LaravelImageStorage $storage): StreamedResponse
     {
-        return $imageFileService->thumbnailResponse($query->execute($id));
+        return $storage->response(storagePath: $query->execute($id)->thumbnail_path, headers: [
+            'Content-Type' => 'image/webp',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
     }
 
-    public function download(string $id, GetImageQuery $query, ImageFileService $imageFileService): StreamedResponse
+    public function download(string $id, GetImageQuery $query, LaravelImageStorage $storage): StreamedResponse
     {
-        return $imageFileService->downloadResponse($query->execute($id));
+        $image = $query->execute($id);
+
+        return $storage->download(
+            storagePath: $image->storage_path,
+            name: $image->original_name,
+            headers: ['Content-Type' => $image->mime_type],
+        );
     }
 
     public function destroy(string $id): HttpResponse

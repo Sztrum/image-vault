@@ -17,7 +17,12 @@ export function ImageList() {
     fetchNextPage,
     refetch,
   } = useInfiniteImages()
-  const sentinelRef = useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage })
+  const sentinelRef = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  })
 
   if (isPending) {
     return (

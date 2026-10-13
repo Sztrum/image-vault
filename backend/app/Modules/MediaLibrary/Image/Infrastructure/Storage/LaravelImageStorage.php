@@ -49,11 +49,6 @@ class LaravelImageStorage
         return $path;
     }
 
-    public function absolutePath(string $storagePath): string
-    {
-        return $this->disk()->path($storagePath);
-    }
-
     public function delete(string ...$storagePaths): void
     {
         $this->disk()->delete($storagePaths);

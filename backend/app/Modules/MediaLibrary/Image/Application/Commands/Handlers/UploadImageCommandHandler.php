@@ -8,6 +8,7 @@ use App\Core\Application\Command\Abstracts\BaseCommandHandler;
 use App\Core\Application\Command\CommandInterface;
 use App\Modules\MediaLibrary\Image\Application\Commands\UploadImageCommand;
 use App\Modules\MediaLibrary\Image\Application\Services\ImageFileService;
+use App\Modules\MediaLibrary\Image\Application\Services\ImageInspectionService;
 use App\Modules\MediaLibrary\Image\Infrastructure\Metadata\PhpExifIptcExtractor;
 use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\ImageRepository;
 use App\Modules\Weather\Domain\Services\WeatherProviderInterface;
@@ -16,6 +17,7 @@ use Throwable;
 readonly class UploadImageCommandHandler extends BaseCommandHandler
 {
     public function __construct(
+        private ImageInspectionService $imageInspectionService,
         private ImageFileService $imageFileService,
         private PhpExifIptcExtractor $metadataExtractor,
         private WeatherProviderInterface $weatherProvider,
@@ -29,7 +31,7 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
      */
     public function handle(CommandInterface $command): void
     {
-        $newImage = $this->imageFileService->toNewImageDTO($command->uploadImageDTO);
+        $newImage = $this->imageInspectionService->toNewImageDTO($command->uploadImageDTO);
         $storedFiles = $this->imageFileService->storeFiles(
             filePath: $command->uploadImageDTO->file_path,
             format: $newImage->format,

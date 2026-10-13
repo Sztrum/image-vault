@@ -1,5 +1,4 @@
 export { imageKeys } from './api/queryKeys'
-export { IMAGES_PER_PAGE } from './api/imageApi'
 export { useInfiniteImages } from './model/useInfiniteImages'
 export type { Image, ImagesPage } from './model/types'
 export { ImageCard } from './ui/ImageCard'
