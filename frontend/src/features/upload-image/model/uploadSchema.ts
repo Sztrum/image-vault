@@ -12,14 +12,15 @@ export const ACCEPTED_MIME_TYPES = [
 
 export const ACCEPTED_EXTENSIONS = '.jpg,.jpeg,.png,.webp,.tif,.tiff,.bmp'
 
-export const uploadSchema = z.object({
-  file: z
-    .custom<File>((value) => value instanceof File, 'Wybierz plik obrazu.')
-    .refine(
-      (file) => (ACCEPTED_MIME_TYPES as readonly string[]).includes(file.type),
-      'Dozwolone formaty: JPG, PNG, WebP, TIFF, BMP.',
-    )
-    .refine((file) => file.size <= MAX_FILE_BYTES, 'Obraz może mieć najwyżej 5 MB.'),
+export const imageFileSchema = z
+  .custom<File>((value) => value instanceof File, 'Wybierz plik obrazu.')
+  .refine(
+    (file) => (ACCEPTED_MIME_TYPES as readonly string[]).includes(file.type),
+    'Dozwolone formaty: JPG, PNG, WebP, TIFF, BMP.',
+  )
+  .refine((file) => file.size <= MAX_FILE_BYTES, 'Obraz może mieć najwyżej 5 MB.')
+
+export const uploaderSchema = z.object({
   uploader_name: z
     .string()
     .trim()
@@ -32,4 +33,16 @@ export const uploadSchema = z.object({
     .pipe(z.email('Podaj poprawny adres e-mail.')),
 })
 
+export const uploadSchema = uploaderSchema.extend({
+  files: z
+    .array(z.custom<File>((value) => value instanceof File))
+    .min(1, 'Wybierz co najmniej jeden obraz.'),
+})
+
+export type UploaderValues = z.infer<typeof uploaderSchema>
+
 export type UploadFormValues = z.infer<typeof uploadSchema>
+
+export type UploadImageValues = UploaderValues & {
+  file: File
+}

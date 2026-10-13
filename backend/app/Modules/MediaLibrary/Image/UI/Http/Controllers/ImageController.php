@@ -14,6 +14,7 @@ use App\Modules\MediaLibrary\Image\Infrastructure\Storage\LaravelImageStorage;
 use App\Modules\MediaLibrary\Image\UI\Http\Requests\ImageIndexRequest;
 use App\Modules\MediaLibrary\Image\UI\Http\Requests\ImageStoreRequest;
 use App\Modules\MediaLibrary\Image\UI\Http\Resources\CollectionImageResource;
+use App\Modules\MediaLibrary\Image\UI\Http\Resources\ImageDetailsResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Http\UploadedFile;
@@ -51,6 +52,11 @@ class ImageController extends ApiController
             message: __('image::messages.uploaded'),
             statusCode: Response::HTTP_CREATED,
         );
+    }
+
+    public function show(string $id, GetImageQuery $query): ImageDetailsResource
+    {
+        return new ImageDetailsResource(resource: $query->execute($id), asResponse: true);
     }
 
     public function thumbnail(string $id, GetImageQuery $query, LaravelImageStorage $storage): StreamedResponse

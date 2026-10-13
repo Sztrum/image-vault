@@ -1,12 +1,12 @@
 import { httpClient } from '@/shared/api'
 
-import type { UploadFormValues } from '../model/uploadSchema'
+import type { UploadImageValues } from '../model/uploadSchema'
 
 type UploadImageResponse = {
   message: string
 }
 
-export async function uploadImage(values: UploadFormValues): Promise<string> {
+export async function uploadImage(values: UploadImageValues): Promise<string> {
   const formData = new FormData()
   formData.append('file', values.file)
   formData.append('uploader_name', values.uploader_name)

@@ -17,3 +17,13 @@ export type ImagesPage = {
     next_cursor: string | null
   }
 }
+
+export type ImageMetadata = Record<string, unknown>
+
+export type ImageDetails = Image & {
+  uploader_email: string
+  temperature_celsius: number | null
+  temperature_measured_at: string | null
+  exif: ImageMetadata | null
+  iptc: ImageMetadata | null
+}

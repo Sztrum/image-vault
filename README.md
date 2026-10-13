@@ -58,8 +58,10 @@ Upload krok po kroku: `ImageStoreRequest` (walidacja) → `UploadImageCommand` �
 
 React + TypeScript (strict) w układzie Feature-Sliced Design: `app → pages → widgets → features → entities → shared`, import tylko w dół i tylko przez publiczne `index.ts` slice'a. Kierunek importów pilnuje ESLint (`eslint-plugin-boundaries`).
 
-- `entities/image`: typy zgodne z API, pobieranie listy (`useInfiniteImages`), karta obrazu,
-- `features/upload-image`, `features/delete-image`, `features/download-image`: formularz uploadu, usuwanie z potwierdzeniem, pobieranie,
+- `entities/image`: typy zgodne z API, pobieranie listy (`useInfiniteImages`) i szczegółów (`useImageDetails`), karta obrazu,
+- `features/upload-image`: wysyłka wielu plików, każdy osobnym `POST` po kolei, ze statusem przy każdym pliku; zły plik nie blokuje pozostałych,
+- `features/view-image-details`: okno szczegółów z temperaturą, e-mailem oraz rozwijanym EXIF i IPTC,
+- `features/delete-image`, `features/download-image`: usuwanie z potwierdzeniem, pobieranie,
 - `widgets/image-list`: galeria z infinite scrollem (`IntersectionObserver`),
 - `shared`: klient HTTP (axios), konfiguracja (`VITE_API_URL` walidowany przez zod), komponenty UI.
 
@@ -73,6 +75,7 @@ Odpowiedzi są w JSON-ie (poza miniaturą i pobieraniem pliku); błędy mają po
 |---|---|---|---|
 | `GET` | `/api/v1/images` | `?cursor=&per_page=` (domyślnie 10, max 50) | 200: `data[]` + `meta.next_cursor` |
 | `POST` | `/api/v1/images` | multipart: `file`, `uploader_name`, `uploader_email` | 201 / 422 |
+| `GET` | `/api/v1/images/{id}` | — | 200: szczegóły z e-mailem, temperaturą, EXIF i IPTC / 404 |
 | `GET` | `/api/v1/images/{id}/thumbnail` | — | 200: `image/webp` |
 | `GET` | `/api/v1/images/{id}/download` | — | 200: oryginał z oryginalną nazwą |
 | `DELETE` | `/api/v1/images/{id}` | — | 204 / 404 |
