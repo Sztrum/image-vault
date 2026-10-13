@@ -14,4 +14,4 @@ WORKDIR /var/www/html
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "composer install --no-interaction && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000 --no-reload"]
+CMD ["sh", "docker/start.sh"]

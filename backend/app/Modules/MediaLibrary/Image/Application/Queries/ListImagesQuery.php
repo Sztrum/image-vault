@@ -7,6 +7,8 @@ namespace App\Modules\MediaLibrary\Image\Application\Queries;
 use App\Modules\MediaLibrary\Image\Domain\Models\Image;
 use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\ImageRepository;
 use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Validation\ValidationException;
+use UnexpectedValueException;
 
 readonly class ListImagesQuery
 {
@@ -16,9 +18,15 @@ readonly class ListImagesQuery
 
     /**
      * @return CursorPaginator<int, Image>
+     *
+     * @throws ValidationException
      */
     public function execute(int $perPage, ?string $cursor): CursorPaginator
     {
-        return $this->imageRepository->paginateByCursor(perPage: $perPage, cursor: $cursor);
+        try {
+            return $this->imageRepository->paginateByCursor(perPage: $perPage, cursor: $cursor);
+        } catch (UnexpectedValueException) {
+            throw ValidationException::withMessages(['cursor' => __('image::validation.invalid_cursor')]);
+        }
     }
 }

@@ -101,4 +101,14 @@ class ListImagesTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonPath('errors.per_page.0', 'Liczba obrazów na stronę musi być liczbą od 1 do 50.');
     }
+
+    public function test_it_rejects_a_tampered_cursor(): void
+    {
+        Image::factory()->create();
+        $cursor = rtrim(strtr(base64_encode((string) json_encode(['foo' => 1, '_pointsToNextItems' => true])), '+/', '-_'), '=');
+
+        $this->getJson(self::URL . '?cursor=' . $cursor)
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.cursor.0', 'Niepoprawny kursor.');
+    }
 }

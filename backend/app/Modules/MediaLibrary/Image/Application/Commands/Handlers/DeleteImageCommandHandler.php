@@ -11,6 +11,7 @@ use App\Modules\MediaLibrary\Image\Application\Queries\GetImageQuery;
 use App\Modules\MediaLibrary\Image\Application\Services\ImageFileService;
 use App\Modules\MediaLibrary\Image\Domain\Exceptions\ImageNotFoundException;
 use App\Modules\MediaLibrary\Image\Infrastructure\Repositories\ImageRepository;
+use Illuminate\Database\DatabaseManager;
 
 readonly class DeleteImageCommandHandler extends BaseCommandHandler
 {
@@ -18,6 +19,7 @@ readonly class DeleteImageCommandHandler extends BaseCommandHandler
         private GetImageQuery $getImageQuery,
         private ImageRepository $imageRepository,
         private ImageFileService $imageFileService,
+        private DatabaseManager $database,
     ) {}
 
     /**
@@ -30,6 +32,6 @@ readonly class DeleteImageCommandHandler extends BaseCommandHandler
         $image = $this->getImageQuery->execute($command->imageId);
 
         $this->imageRepository->delete($image);
-        $this->imageFileService->deleteImageFiles($image);
+        $this->database->afterCommit(fn () => $this->imageFileService->deleteImageFiles($image));
     }
 }

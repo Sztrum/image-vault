@@ -1,8 +1,2 @@
 export { httpClient } from './httpClient'
-export {
-  ApiError,
-  ApiValidationError,
-  isApiValidationError,
-  toApiError,
-  type ValidationErrors,
-} from './apiError'
+export { ApiError, ApiValidationError, isApiValidationError } from './apiError'

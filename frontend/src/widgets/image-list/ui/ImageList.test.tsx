@@ -69,6 +69,42 @@ describe('ImageList', () => {
     expect(requestedCursors).toEqual([null, 'page-2'])
   })
 
+  it('waits for retry instead of reloading the next page in a loop after it fails', async () => {
+    const user = userEvent.setup()
+    let secondPageRequests = 0
+    let isSecondPageDown = true
+    server.use(
+      http.get(apiUrl('/images'), ({ request }) => {
+        if (new URL(request.url).searchParams.get('cursor') !== 'page-2') {
+          return HttpResponse.json(makePage(makeImages(10, 'first'), 'page-2'))
+        }
+
+        secondPageRequests++
+
+        return isSecondPageDown
+          ? HttpResponse.error()
+          : HttpResponse.json(makePage(makeImages(5, 'second')))
+      }),
+    )
+
+    renderWithQueryClient(<ImageList />)
+    await screen.findAllByRole('article')
+
+    act(() => scrollToSentinel())
+    expect(await screen.findByRole('alert')).toHaveTextContent('Brak połączenia z serwerem.')
+    act(() => scrollToSentinel())
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)))
+
+    expect(secondPageRequests).toBe(1)
+
+    isSecondPageDown = false
+    await user.click(screen.getByRole('button', { name: 'Spróbuj ponownie' }))
+
+    expect(await screen.findByText('To już wszystkie obrazy.')).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(15)
+    expect(secondPageRequests).toBe(2)
+  })
+
   it('shows an empty state when there are no images', async () => {
     serveImages([])
 

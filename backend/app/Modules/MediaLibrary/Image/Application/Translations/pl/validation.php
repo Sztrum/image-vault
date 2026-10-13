@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'file_name_max' => 'Nazwa pliku może mieć najwyżej 255 znaków.',
+    'invalid_cursor' => 'Niepoprawny kursor.',
+
     'custom' => [
         'file.required' => 'Wybierz plik obrazu.',
         'file.file' => 'Nie udało się wgrać pliku.',

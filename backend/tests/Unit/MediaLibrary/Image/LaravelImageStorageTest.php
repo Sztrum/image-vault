@@ -25,7 +25,6 @@ class LaravelImageStorageTest extends TestCase
         $this->assertSame('thumbnails/0199d0a0-0000-7000-8000-000000000001.webp', $thumbnailPath);
         Storage::disk('local')->assertExists($originalPath);
         $this->assertSame('webp-bytes', Storage::disk('local')->get($thumbnailPath));
-        $this->assertSame(Storage::disk('local')->path($originalPath), $storage->absolutePath($originalPath));
 
         $storage->delete($originalPath, $thumbnailPath);
 

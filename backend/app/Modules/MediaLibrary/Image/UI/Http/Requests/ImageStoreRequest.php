@@ -7,14 +7,19 @@ namespace App\Modules\MediaLibrary\Image\UI\Http\Requests;
 use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
 use App\Modules\MediaLibrary\Image\Domain\ValueObjects\FileSize;
 use App\Modules\MediaLibrary\Image\Domain\ValueObjects\ImageDimensions;
+use App\Modules\MediaLibrary\Image\Domain\ValueObjects\ImageName;
 use App\Modules\MediaLibrary\Image\Domain\ValueObjects\Uploader;
 use App\Shared\Domain\ValueObjects\Email;
 use App\Shared\UI\Http\Requests\BaseRequest;
+use Closure;
+use Illuminate\Http\UploadedFile;
 
 class ImageStoreRequest extends BaseRequest
 {
+    protected const string MESSAGES_KEY = 'image::validation.custom';
+
     /**
-     * @return array<string, list<string>>
+     * @return array<string, list<string|Closure>>
      */
     public function rules(): array
     {
@@ -26,24 +31,14 @@ class ImageStoreRequest extends BaseRequest
                 'mimes:' . implode(',', [...ImageFormatEnum::values(), 'jpeg', 'tif']),
                 'max:' . FileSize::MAX_BYTES / 1024,
                 'dimensions:min_width=' . ImageDimensions::MIN_SIDE . ',min_height=' . ImageDimensions::MIN_SIDE,
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if ($value instanceof UploadedFile && mb_strlen($value->getClientOriginalName()) > ImageName::MAX_LENGTH) {
+                        $fail(__('image::validation.file_name_max'));
+                    }
+                },
             ],
             'uploader_name' => ['required', 'string', 'max:' . Uploader::NAME_MAX_LENGTH],
-            'uploader_email' => ['required', 'string', 'email', 'max:' . Email::MAX_LENGTH],
+            'uploader_email' => ['required', 'string', 'email:filter', 'max:' . Email::MAX_LENGTH],
         ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        $messages = __('image::validation.custom');
-
-        if (!is_array($messages)) {
-            return [];
-        }
-
-        /** @var array<string, string> $messages */
-        return $messages;
     }
 }

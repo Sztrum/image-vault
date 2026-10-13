@@ -112,6 +112,8 @@ class UploadImageTest extends TestCase
             'missing name' => ['missing_name', 'Podaj imię.'],
             'missing email' => ['missing_email', 'Podaj adres e-mail.'],
             'invalid email' => ['invalid_email', 'Podaj poprawny adres e-mail.'],
+            'email rejected by the domain' => ['local_email', 'Podaj poprawny adres e-mail.'],
+            'file name longer than 255 characters' => ['long_name', 'Nazwa pliku może mieć najwyżej 255 znaków.'],
         ];
     }
 
@@ -122,17 +124,19 @@ class UploadImageTest extends TestCase
             'gif' => $this->makeImage(600, 600, 'gif', 'photo.gif'),
             'too_large' => $this->makeImage(600, 600, 'png', 'photo.png', padToBytes: 5 * 1024 * 1024 + 1),
             'too_small' => $this->makeImage(499, 600, 'png', 'photo.png'),
+            'long_name' => $this->makeImage(600, 600, 'png', str_repeat('a', 252) . '.png'),
             default => $this->makeImage(600, 600, 'png', 'photo.png'),
         };
         $fields = match ($case) {
             'missing_name' => ['uploader_name' => ''],
             'missing_email' => ['uploader_email' => ''],
             'invalid_email' => ['uploader_email' => 'not-an-email'],
+            'local_email' => ['uploader_email' => 'anna@localhost'],
             default => [],
         };
         $field = match ($case) {
             'missing_name' => 'uploader_name',
-            'missing_email', 'invalid_email' => 'uploader_email',
+            'missing_email', 'invalid_email', 'local_email' => 'uploader_email',
             default => 'file',
         };
 
@@ -210,7 +214,7 @@ class UploadImageTest extends TestCase
         $image->newImage($width, $height, new ImagickPixel('#3366cc'));
         $image->setImageFormat($format);
 
-        $path = sys_get_temp_dir() . '/upload-' . uniqid() . '-' . $name;
+        $path = sys_get_temp_dir() . '/upload-' . uniqid() . '.' . pathinfo($name, PATHINFO_EXTENSION);
         $image->writeImage($path);
         $this->files[] = $path;
 
