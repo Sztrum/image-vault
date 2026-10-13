@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { createPreviewUrl, revokePreviewUrl } from '../lib/previewUrl'
 import { fileErrorMessage, uploaderErrorsOf, type UploaderField } from '../lib/uploadErrors'
@@ -8,13 +8,18 @@ import { useUploadImage } from './useUploadImage'
 
 export type UploadStatus = 'queued' | 'uploading' | 'done' | 'error'
 
-export type UploadItem = {
+type UploadEntry = {
   key: string
   file: File
   previewUrl: string | null
+}
+
+type UploadProgress = {
   status: UploadStatus
   message?: string
 }
+
+export type UploadItem = UploadEntry & UploadProgress
 
 export type UploadResult = {
   sent: number
@@ -22,25 +27,30 @@ export type UploadResult = {
   uploaderErrors: Partial<Record<UploaderField, string>> | null
 }
 
+const QUEUED: UploadProgress = { status: 'queued' }
+
 export function useUploadQueue() {
-  const [items, setItems] = useState<UploadItem[]>([])
-  const selectedRef = useRef<UploadItem[]>([])
+  const [entries, setEntries] = useState<UploadEntry[]>([])
+  const [progress, setProgress] = useState<Record<string, UploadProgress>>({})
   const { mutateAsync } = useUploadImage()
   const refreshGallery = useRefreshGallery()
 
-  const update = (key: string, patch: Partial<UploadItem>) =>
-    setItems((current) => current.map((item) => (item.key === key ? { ...item, ...patch } : item)))
+  const items: UploadItem[] = entries.map((entry) => ({
+    ...entry,
+    ...(progress[entry.key] ?? QUEUED),
+  }))
+
+  const setItemProgress = (key: string, value: UploadProgress) =>
+    setProgress((current) => ({ ...current, [key]: value }))
 
   const select = (files: File[]) => {
-    selectedRef.current.forEach((item) => revokePreviewUrl(item.previewUrl))
-    selectedRef.current = files.map((file) => ({
-      key: crypto.randomUUID(),
-      file,
-      previewUrl: createPreviewUrl(file),
-      status: 'queued',
-    }))
-    setItems(selectedRef.current)
+    setEntries(
+      files.map((file) => ({ key: crypto.randomUUID(), file, previewUrl: createPreviewUrl(file) })),
+    )
+    setProgress({})
   }
+
+  const clear = () => select([])
 
   const upload = async (uploader: UploaderValues): Promise<UploadResult> => {
     const result: UploadResult = { sent: 0, failed: 0, uploaderErrors: null }
@@ -48,14 +58,14 @@ export function useUploadQueue() {
     for (const item of items.filter(({ status }) => status !== 'done')) {
       const check = imageFileSchema.safeParse(item.file)
       if (!check.success) {
-        update(item.key, { status: 'error', message: check.error.issues[0]?.message })
+        setItemProgress(item.key, { status: 'error', message: check.error.issues[0]?.message })
         result.failed++
         continue
       }
 
-      update(item.key, { status: 'uploading', message: undefined })
+      setItemProgress(item.key, { status: 'uploading' })
       try {
-        update(item.key, {
+        setItemProgress(item.key, {
           status: 'done',
           message: await mutateAsync({ ...uploader, file: item.file }),
         })
@@ -63,11 +73,11 @@ export function useUploadQueue() {
       } catch (error) {
         result.uploaderErrors = uploaderErrorsOf(error)
         if (result.uploaderErrors) {
-          update(item.key, { status: 'queued' })
+          setItemProgress(item.key, QUEUED)
           break
         }
 
-        update(item.key, { status: 'error', message: fileErrorMessage(error) })
+        setItemProgress(item.key, { status: 'error', message: fileErrorMessage(error) })
         result.failed++
       }
     }
@@ -79,11 +89,7 @@ export function useUploadQueue() {
     return result
   }
 
-  useEffect(() => {
-    const selected = selectedRef
+  useEffect(() => () => entries.forEach((entry) => revokePreviewUrl(entry.previewUrl)), [entries])
 
-    return () => selected.current.forEach((item) => revokePreviewUrl(item.previewUrl))
-  }, [])
-
-  return { items, select, upload }
+  return { items, select, clear, upload }
 }
