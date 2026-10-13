@@ -17,6 +17,10 @@ use Illuminate\Contracts\Pagination\CursorPaginator;
  */
 class ImageRepository extends EloquentModelRepository
 {
+    private const array LIST_COLUMNS = [
+        'id', 'original_name', 'extension', 'size_bytes', 'width', 'height', 'uploader_name', 'created_at',
+    ];
+
     public function model(): Image
     {
         return new Image;
@@ -52,6 +56,7 @@ class ImageRepository extends EloquentModelRepository
     public function paginateByCursor(int $perPage, ?string $cursor): CursorPaginator
     {
         return $this->query()
+            ->select(self::LIST_COLUMNS)
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->cursorPaginate(perPage: $perPage, cursor: $cursor);
