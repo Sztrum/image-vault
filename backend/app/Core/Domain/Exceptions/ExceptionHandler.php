@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Domain\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -21,6 +22,13 @@ class ExceptionHandler extends Handler
     /** @var array<int, class-string<Throwable>> */
     protected $dontReport = [
         RouteNotFoundException::class,
+    ];
+
+    /** @var array<int, string> */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
     ];
 
     public function render($request, Throwable $e): Response|JsonResponse|RedirectResponse
@@ -58,6 +66,10 @@ class ExceptionHandler extends Handler
                 'status' => $status,
                 'message' => $hideMessage ? __('core::domain.server_error') : $e->getMessage(),
             ], $e, $isDebug);
+        }
+
+        if ($e instanceof AuthenticationException) {
+            return $this->respond(['status' => Response::HTTP_UNAUTHORIZED, 'message' => __('core::domain.unauthenticated')], $e, $isDebug);
         }
 
         return $this->buildDefaultResponse($e, $isDebug);

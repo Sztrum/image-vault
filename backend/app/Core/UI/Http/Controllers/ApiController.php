@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core\UI\Http\Controllers;
 
 use App\Core\Application\Command\CommandBusInterface;
+use App\Core\Application\Query\QueryBusInterface;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller as BaseController;
@@ -15,6 +16,7 @@ abstract class ApiController extends BaseController
     public function __construct(
         protected readonly ResponseFactory $responseFactory,
         protected readonly CommandBusInterface $commandBus,
+        protected readonly QueryBusInterface $queryBus,
     ) {}
 
     protected function responseMessage(
