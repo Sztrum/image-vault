@@ -32,6 +32,11 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
     public function handle(CommandInterface $command): void
     {
         $newImage = $this->imageInspectionService->toNewImageDTO($command->uploadImageDTO);
+        $metadata = $this->metadataExtractor->extract(
+            sourcePath: $command->uploadImageDTO->file_path,
+            format: $newImage->format,
+        );
+        $temperature = $this->weatherProvider->currentTemperatureInKatowice();
         $storedFiles = $this->imageFileService->storeFiles(
             filePath: $command->uploadImageDTO->file_path,
             format: $newImage->format,
@@ -41,11 +46,8 @@ readonly class UploadImageCommandHandler extends BaseCommandHandler
             $this->imageRepository->createFromUpload(
                 newImage: $newImage,
                 storedFiles: $storedFiles,
-                metadata: $this->metadataExtractor->extract(
-                    sourcePath: $command->uploadImageDTO->file_path,
-                    format: $newImage->format,
-                ),
-                temperature: $this->weatherProvider->currentTemperatureInKatowice(),
+                metadata: $metadata,
+                temperature: $temperature,
             );
         } catch (Throwable $exception) {
             $this->imageFileService->deleteFiles($storedFiles);
