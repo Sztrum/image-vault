@@ -47,7 +47,7 @@ describe('UploadImageForm', () => {
       'Dozwolone formaty: JPG, PNG, WebP, TIFF, BMP.',
     ],
     [pngFile('big.png', 5 * 1024 * 1024 + 1), 'Obraz może mieć najwyżej 5 MB.'],
-  ])('rejects %s before sending', async (file, message) => {
+  ])('rejects an invalid file before sending (%#)', async (file, message) => {
     const user = userEvent.setup({ applyAccept: false })
     failOnUpload()
 
