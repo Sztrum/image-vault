@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\MediaLibrary\Image\Infrastructure\Storage;
 
 use App\Modules\MediaLibrary\Image\Domain\Enums\ImageFormatEnum;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\File;
@@ -20,7 +19,6 @@ class LaravelImageStorage
 
     public function __construct(
         private readonly FilesystemFactory $filesystem,
-        private readonly ConfigContract $config,
     ) {}
 
     /**
@@ -72,7 +70,7 @@ class LaravelImageStorage
 
     private function disk(): FilesystemAdapter
     {
-        $disk = $this->filesystem->disk($this->config->string('image::image.disk'));
+        $disk = $this->filesystem->disk();
         throw_unless($disk instanceof FilesystemAdapter, RuntimeException::class, 'Image disk must be a filesystem adapter.');
 
         return $disk;
